@@ -1,0 +1,47 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway-service
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: auth-service
+          uri: http://localhost:9000
+          predicates:
+            - Path=/oauth2/**, /login, /logout, /api/auth/**
+        - id: task-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/tasks/**
+    compatibility-verifier:
+      enabled: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          auth-service:
+            client-id: gateway-client
+            client-secret: gateway-secret
+            authorization-grant-type: authorization_code
+            scope: read,write
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          auth-service:
+            authorization-uri: http://localhost:9000/oauth2/authorize
+            token-uri: http://localhost:9000/oauth2/token
+            jwk-set-uri: http://localhost:9000/oauth2/jwks
+            user-name-attribute: sub
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/oauth2/jwks
+
+
+  config:
+    import: optional:file:.env.dev[.properties]
