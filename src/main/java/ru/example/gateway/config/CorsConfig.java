@@ -7,9 +7,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.web.reactive.config.CorsRegistry;
-import org.springframework.web.reactive.config.EnableWebFlux;
-import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -26,14 +23,16 @@ public class CorsConfig {
                               HttpHeaders headers = response.getHeaders();
 
                               headers.add("Access-Control-Allow-Origin", "http://localhost:3000");
-                              headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                              headers.add("Access-Control-Allow-Methods",
+                                        "GET, POST, PUT, DELETE, OPTIONS, PATCH");
                               headers.add("Access-Control-Allow-Headers", "*");
                               headers.add("Access-Control-Allow-Credentials", "true");
+                              headers.add("Access-Control-Expose-Headers", "Authorization, Content-Type");
                               headers.add("Access-Control-Max-Age", "3600");
 
                               if (request.getMethod() == HttpMethod.OPTIONS) {
                                         response.setStatusCode(HttpStatus.OK);
-                                        return Mono.empty();
+                                        return response.setComplete(); // Используйте setComplete() вместо Mono.empty()
                               }
 
                               return chain.filter(exchange);
