@@ -1,52 +1,43 @@
 server:
-  port: 8080
+  port: ${PORT}
 
 spring:
+  config:
+    import: optional:file:.env.docker[.properties]
   application:
     name: gateway-service
-
   cloud:
     gateway:
-
       discovery:
         locator:
           enabled: false
       routes:
         - id: auth-service
-          uri: http://localhost:9000
+          uri: ${AUTH_SERVICE_URL}
           predicates:
             - Path=/oauth2/**, /login, /logout, /api/auth/**
         - id: task-service
-          uri: http://localhost:8081
+          uri: ${TASK_SERVICE_URL}
           predicates:
             - Path=/api/tasks/**, /api/tasks
     compatibility-verifier:
       enabled: false
-
   security:
     oauth2:
       client:
         registration:
           auth-service:
-            client-id: gateway-client
-            client-secret: gateway-secret
+            client-id: ${OAUTH2_CLIENT_ID}
+            client-secret: ${OAUTH2_CLIENT_SECRET}
             authorization-grant-type: authorization_code
-            scope: read,write
+            scope: ${OAUTH2_SCOPE}
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           auth-service:
-            authorization-uri: http://localhost:9000/oauth2/authorize
-            token-uri: http://localhost:9000/oauth2/token
-            jwk-set-uri: http://localhost:9000/oauth2/jwks
+            authorization-uri: ${OAUTH2_AUTHORIZATION_URI}
+            token-uri: ${OAUTH2_TOKEN_URI}
+            jwk-set-uri: ${OAUTH2_JWK_SET_URI}
             user-name-attribute: sub
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:9000/oauth2/jwks
-
-
-  config:
-    import: optional:file:.env.dev[.properties]
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.security: DEBUG
+          jwk-set-uri: ${JWT_JWK_SET_URI}
