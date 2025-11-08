@@ -1,5 +1,6 @@
 package ru.example.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -13,6 +14,9 @@ import reactor.core.publisher.Mono;
 @Component
 public class JwtParameterAuthenticationConverter implements
           Converter<ServerWebExchange, Mono<Jwt>> {
+
+          @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+          private String jwkSetUri;
 
           @Override
           public Mono<Jwt> convert(ServerWebExchange exchange) {
@@ -47,6 +51,6 @@ public class JwtParameterAuthenticationConverter implements
           }
 
           private ReactiveJwtDecoder createJwtDecoder() {
-                    return NimbusReactiveJwtDecoder.withJwkSetUri("http://localhost:9000/oauth2/jwks").build();
+                    return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
           }
 }
