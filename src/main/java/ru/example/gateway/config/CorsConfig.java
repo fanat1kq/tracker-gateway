@@ -23,6 +23,7 @@ public class CorsConfig {
                               HttpHeaders headers = response.getHeaders();
 
                               headers.add("Access-Control-Allow-Origin", "http://localhost:3000");
+                              headers.add("Access-Control-Allow-Origin", "http://176.109.106.218:3001");
                               headers.add("Access-Control-Allow-Methods",
                                         "GET, POST, PUT, DELETE, OPTIONS, PATCH");
                               headers.add("Access-Control-Allow-Headers", "*");
