@@ -1,0 +1,43 @@
+server:
+  port: ${PORT}
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      routes:
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/oauth2/**, /login, /logout, /api/auth/**
+        - id: task-service
+          uri: ${TASK_SERVICE_URL}
+          predicates:
+            - Path=/api/tasks/**, /api/tasks
+    compatibility-verifier:
+      enabled: false
+  security:
+    oauth2:
+      client:
+        registration:
+          auth-service:
+            client-id: ${OAUTH2_CLIENT_ID}
+            client-secret: ${OAUTH2_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            scope: ${OAUTH2_SCOPE}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          auth-service:
+            authorization-uri: ${OAUTH2_AUTHORIZATION_URI}
+            token-uri: ${OAUTH2_TOKEN_URI}
+            jwk-set-uri: ${OAUTH2_JWK_SET_URI}
+            user-name-attribute: sub
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${JWT_JWK_SET_URI}
