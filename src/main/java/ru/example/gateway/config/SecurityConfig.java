@@ -1,5 +1,6 @@
 package ru.example.gateway.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -12,6 +13,9 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 @EnableWebFluxSecurity
 public class SecurityConfig {
+
+          @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+          private String jwkSetUri;
 
           @Bean
           public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -38,11 +42,10 @@ public class SecurityConfig {
                               .build();
           }
 
-//          @Bean
-//          public ReactiveJwtDecoder jwtDecoder() {
-//                    return NimbusReactiveJwtDecoder.withJwkSetUri(
-//                              "http://localhost:9000/oauth2/jwks").build();
-//          }
+          @Bean
+          public ReactiveJwtDecoder jwtDecoder() {
+                    return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
+          }
 
 
 }
