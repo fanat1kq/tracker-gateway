@@ -38,11 +38,11 @@ public class SecurityConfig {
                               .build();
           }
 
-          @Bean
-          public ReactiveJwtDecoder jwtDecoder() {
-                    return NimbusReactiveJwtDecoder.withJwkSetUri(
-                              "http://localhost:9000/oauth2/jwks").build();
-          }
+//          @Bean
+//          public ReactiveJwtDecoder jwtDecoder() {
+//                    return NimbusReactiveJwtDecoder.withJwkSetUri(
+//                              "http://localhost:9000/oauth2/jwks").build();
+//          }
 
 
 }
