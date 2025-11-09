@@ -41,3 +41,5 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${JWT_JWK_SET_URI}
+cors:
+  allowed-origins: ${ORIGINS}
