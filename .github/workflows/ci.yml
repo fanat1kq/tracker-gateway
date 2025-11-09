@@ -75,6 +75,6 @@ jobs:
             docker stop gateway || true
             docker rm gateway || true
             docker pull --platform linux/amd64 ${{ env.IMAGE_NAME }}:master
-            cd ~/app/task-tracker/gateway
-            docker-compose -f docker-compose.prod.yml up -d
+            cd ~/app/task-tracker
+            docker-compose -f docker-compose.prod.yml up -d gateway
             docker rmi $(docker images "${{ env.IMAGE_NAME }}" --filter "before=${{ env.IMAGE_NAME }}:master" -q) || true
