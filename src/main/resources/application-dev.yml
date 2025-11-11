@@ -15,7 +15,9 @@ spring:
         - id: auth-service
           uri: ${AUTH_SERVICE_URL}
           predicates:
-            - Path=/oauth2/**, /login, /logout, /api/auth/**
+            - Path=/oauth2/**, /login, /logout, /api/auth/**, /login/oauth2
+          filters:
+            - StripPrefix=0
         - id: task-service
           uri: ${TASK_SERVICE_URL}
           predicates:

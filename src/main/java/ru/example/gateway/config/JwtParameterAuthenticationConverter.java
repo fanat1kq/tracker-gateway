@@ -2,7 +2,6 @@ package ru.example.gateway.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
@@ -12,45 +11,39 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-public class JwtParameterAuthenticationConverter implements
-          Converter<ServerWebExchange, Mono<Jwt>> {
+public class JwtParameterAuthenticationConverter
+          implements Converter<ServerWebExchange, Mono<Jwt>> {
 
           @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
           private String jwkSetUri;
 
+          private ReactiveJwtDecoder jwtDecoder;
+
           @Override
           public Mono<Jwt> convert(ServerWebExchange exchange) {
-                    ServerHttpRequest request = exchange.getRequest();
-
-                    // ✅ 1. Пробуем извлечь JWT из параметра access_token
-                    String token = request.getQueryParams().getFirst("access_token");
-
-                    // ✅ 2. Если нет в параметре, пробуем из cookie
-                    if (token == null) {
-                              HttpCookie jwtCookie = request.getCookies().getFirst("JWT");
-                              if (jwtCookie != null) {
-                                        token = jwtCookie.getValue();
-                              }
-                    }
-
-                    // ✅ 3. Если нет в cookie, пробуем из заголовка Authorization
-                    if (token == null) {
-                              String authHeader = request.getHeaders().getFirst("Authorization");
-                              if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                                        token = authHeader.substring(7);
-                              }
-                    }
-
-                    if (token != null && !token.isEmpty()) {
-                              // Декодируем JWT и возвращаем
-                              ReactiveJwtDecoder jwtDecoder = createJwtDecoder();
-                              return jwtDecoder.decode(token);
-                    }
-
-                    return Mono.empty();
+                    return Mono.justOrEmpty(extractToken(exchange.getRequest()))
+                              .flatMap(token -> getJwtDecoder().decode(token));
           }
 
-          private ReactiveJwtDecoder createJwtDecoder() {
-                    return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
+          private String extractToken(ServerHttpRequest request) {
+                    var token = request.getQueryParams().getFirst("access_token");
+                    if (token == null) {
+                              var cookie = request.getCookies().getFirst("JWT");
+                              token = cookie != null ? cookie.getValue() : null;
+                    }
+                    if (token == null) {
+                              var authHeader = request.getHeaders().getFirst("Authorization");
+                              token = authHeader != null && authHeader.startsWith("Bearer ") ?
+                                        authHeader.substring(7) : null;
+                    }
+                    return token;
+          }
+
+          private ReactiveJwtDecoder getJwtDecoder() {
+                    if (jwtDecoder == null) {
+                              jwtDecoder =
+                                        NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
+                    }
+                    return jwtDecoder;
           }
 }
