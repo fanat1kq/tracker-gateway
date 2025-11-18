@@ -15,31 +15,31 @@ import org.springframework.web.server.WebFilterChain;
 @Configuration
 public class CorsConfig {
 
-          @Value("${cors.allowed-origins}")
-          private String allowedOrigins;
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
 
-          @Bean
-          public WebFilter corsFilter() {
-                    return (ServerWebExchange exchange, WebFilterChain chain) -> {
-                              ServerHttpRequest request = exchange.getRequest();
-                              ServerHttpResponse response = exchange.getResponse();
-                              HttpHeaders headers = response.getHeaders();
+    @Bean
+    public WebFilter corsFilter() {
+        return (ServerWebExchange exchange, WebFilterChain chain) -> {
+            ServerHttpRequest request = exchange.getRequest();
+            ServerHttpResponse response = exchange.getResponse();
+            HttpHeaders headers = response.getHeaders();
 
-                              headers.add("Access-Control-Allow-Origin", allowedOrigins);
-                              headers.add("Access-Control-Allow-Methods",
-                                        "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-                              headers.add("Access-Control-Allow-Headers", "*");
-                              headers.add("Access-Control-Allow-Credentials", "true");
-                              headers.add("Access-Control-Expose-Headers",
-                                        "Authorization, Content-Type");
-                              headers.add("Access-Control-Max-Age", "3600");
+            headers.add("Access-Control-Allow-Origin", allowedOrigins);
+            headers.add("Access-Control-Allow-Methods",
+                "GET, POST, PUT, DELETE, OPTIONS, PATCH");
+            headers.add("Access-Control-Allow-Headers", "*");
+            headers.add("Access-Control-Allow-Credentials", "true");
+            headers.add("Access-Control-Expose-Headers",
+                "Authorization, Content-Type");
+            headers.add("Access-Control-Max-Age", "3600");
 
-                              if (request.getMethod() == HttpMethod.OPTIONS) {
-                                        response.setStatusCode(HttpStatus.OK);
-                                        return response.setComplete();
-                              }
+            if (request.getMethod() == HttpMethod.OPTIONS) {
+                response.setStatusCode(HttpStatus.OK);
+                return response.setComplete();
+            }
 
-                              return chain.filter(exchange);
-                    };
-          }
+            return chain.filter(exchange);
+        };
+    }
 }

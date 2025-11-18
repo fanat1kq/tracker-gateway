@@ -14,32 +14,31 @@ import reactor.core.publisher.Mono;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SessionToJwtFilter implements GlobalFilter {
 
-          @Override
-          public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-                    var request = exchange.getRequest();
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        var request = exchange.getRequest();
 
-                    if (!request.getPath().value().startsWith("/tasks")) {
-                              return chain.filter(exchange);
-                    }
+        if (!request.getPath().value().startsWith("/tasks")) {
+            return chain.filter(exchange);
+        }
 
-                    return exchange.getPrincipal()
-                              .cast(Authentication.class)
-                              .map(this::extractJwtToken)
-                              .map(jwt -> jwt != null ? addAuthHeader(exchange, jwt) : exchange)
-                              .defaultIfEmpty(exchange)
-                              .flatMap(chain::filter);
-          }
+        return exchange.getPrincipal()
+            .cast(Authentication.class)
+            .map(this::extractJwtToken)
+            .map(jwt -> jwt != null ? addAuthHeader(exchange, jwt) : exchange)
+            .defaultIfEmpty(exchange)
+            .flatMap(chain::filter);
+    }
 
-          private String extractJwtToken(Authentication authentication) {
-                    return authentication instanceof OAuth2AuthenticationToken token
-                              ? token.getCredentials().toString()
-                              : null;
-          }
+    private String extractJwtToken(Authentication authentication) {
+        return authentication instanceof OAuth2AuthenticationToken token
+            ? token.getCredentials().toString() : null;
+    }
 
-          private ServerWebExchange addAuthHeader(ServerWebExchange exchange, String jwtToken) {
-                    var newRequest = exchange.getRequest().mutate()
-                              .header("Authorization", "Bearer " + jwtToken)
-                              .build();
-                    return exchange.mutate().request(newRequest).build();
-          }
+    private ServerWebExchange addAuthHeader(ServerWebExchange exchange, String jwtToken) {
+        var newRequest = exchange.getRequest().mutate()
+            .header("Authorization", "Bearer " + jwtToken)
+            .build();
+        return exchange.mutate().request(newRequest).build();
+    }
 }

@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [master, develop]
+    branches: [ master, develop ]
 
 env:
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/gateway
@@ -74,7 +74,7 @@ jobs:
             docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin <<< "${{ secrets.DOCKERHUB_TOKEN }}"
             docker stop gateway || true
             docker rm gateway || true
-            docker pull --platform linux/amd64 ${{ env.IMAGE_NAME }}:master
+            docker pull --platform linux/amd64 ${{ env.IMAGE_NAME }}:latest
             cd ~/app/task-tracker
             docker-compose -f docker-compose.prod.yml up -d gateway
             docker rmi $(docker images "${{ env.IMAGE_NAME }}" --filter "before=${{ env.IMAGE_NAME }}:master" -q) || true
