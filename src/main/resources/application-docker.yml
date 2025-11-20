@@ -3,7 +3,7 @@ server:
 
 spring:
   config:
-    import: optional:file:.env.docker[.properties]
+    import: optional:file:.env[.properties]
   application:
     name: gateway-service
   cloud:
